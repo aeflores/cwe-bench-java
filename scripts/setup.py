@@ -3,14 +3,18 @@ import argparse
 import csv
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
 CWE_BENCH_JAVA_ROOT_DIR = os.path.abspath(os.path.join(__file__, "..", ".."))
 
 def fetch_and_build_one(payload):
-  (project, no_build) = payload
+  (project, no_build, fixed) = payload
   project_slug = project[1]
   print(f"== Processing {project_slug} ==")
-  output = subprocess.run(["python3", f"{CWE_BENCH_JAVA_ROOT_DIR}/scripts/fetch_one.py", project_slug])
+  cmd = ["python3", f"{CWE_BENCH_JAVA_ROOT_DIR}/scripts/fetch_one.py", project_slug]
+  if fixed:
+    cmd.append("--fixed")
+  output = subprocess.run(cmd)
   if output.returncode != 0:
     return
   if not no_build:
@@ -21,11 +25,11 @@ def fetch_and_build_one(payload):
   else:
     print(f"== Done fetching {project_slug} ==")
 
-def parallel_fetch_and_build(projects, no_build):
+def parallel_fetch_and_build(projects, no_build, fixed):
   results = []
   with ThreadPoolExecutor() as executor:
     # Submit the function to the executor for each struct
-    future_to_project = {executor.submit(fetch_and_build_one, (project, no_build)): project for project in projects}
+    future_to_project = {executor.submit(fetch_and_build_one, (project, no_build, fixed)): project for project in projects}
 
     # Collect the results as they are completed
     for future in as_completed(future_to_project):
@@ -41,6 +45,7 @@ def parallel_fetch_and_build(projects, no_build):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--no-build", action="store_true")
+  parser.add_argument("--fixed", action="store_true")
   parser.add_argument("--filter", nargs="+", type=str)
   parser.add_argument("--exclude", nargs="+", type=str)
   parser.add_argument("--cwe", nargs="+", type=str)
@@ -49,6 +54,9 @@ if __name__ == "__main__":
   if not args.no_build:
     subprocess.run(["mkdir", "-p", f"{CWE_BENCH_JAVA_ROOT_DIR}/build-info"])
   subprocess.run(["mkdir", "-p", f"{CWE_BENCH_JAVA_ROOT_DIR}/project-sources"])
+
+  if args.fixed:
+    Path(f"{CWE_BENCH_JAVA_ROOT_DIR}/project-sources-fixed").mkdir(exist_ok=True)
 
   if not args.no_build:
     print(f"====== Setting up JDK ======")
@@ -87,4 +95,4 @@ if __name__ == "__main__":
       projects.append(project)
 
   # Perform fetch and build on the applied
-  parallel_fetch_and_build(projects, args.no_build)
+  parallel_fetch_and_build(projects, args.no_build, args.fixed)

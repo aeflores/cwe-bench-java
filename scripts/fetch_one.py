@@ -23,7 +23,9 @@ CWE_BENCH_JAVA_ROOT_DIR = os.path.abspath(os.path.join(__file__, "..", ".."))
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("project_slug", type=str)
+  parser.add_argument("--fixed", action="store_true")
   args = parser.parse_args()
+  get_fixed = args.fixed
 
   project_slug = args.project_slug
   reader = csv.reader(open(f"{CWE_BENCH_JAVA_ROOT_DIR}/data/project_info.csv"))
@@ -32,10 +34,15 @@ if __name__ == "__main__":
       row = line
 
   repo_url = row[8]
-  commit_id = row[10]
-  target_dir = f"{CWE_BENCH_JAVA_ROOT_DIR}/project-sources/{project_slug}"
+  if get_fixed:
+    project_sources = "project-sources-fixed"
+    commit_id = row[11].split(";")[-1]
+  else:
+    commit_id = row[10]
+    project_sources = "project-sources"
+  target_dir = f"{CWE_BENCH_JAVA_ROOT_DIR}/{project_sources}/{project_slug}"
 
-  if os.path.exists(f"{CWE_BENCH_JAVA_ROOT_DIR}/project-sources/{project_slug}"):
+  if os.path.exists(f"{CWE_BENCH_JAVA_ROOT_DIR}/{project_sources}/{project_slug}"):
     print(f">> [CWE-Bench-Java/fetch_one] skipping")
     exit(0)
 
@@ -50,7 +57,7 @@ if __name__ == "__main__":
   subprocess.run(git_checkout_commit, cwd=target_dir)
 
   patch_dir = f"{CWE_BENCH_JAVA_ROOT_DIR}/patches/{project_slug}.patch"
-  if os.path.exists(patch_dir):
+  if not get_fixed and os.path.exists(patch_dir):
     print(f">> [CWE-Bench-Java/fetch_one] Applying patch `{patch_dir}`...")
     git_patch = ["git", "apply", patch_dir]
     subprocess.run(git_patch, cwd=target_dir)
