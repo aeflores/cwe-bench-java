@@ -31,7 +31,8 @@ MANUALLY_EXCLUDED = [
 ]
 
 VULNERABLE_COMMIT = {
-    "perwendel__spark_CVE-2018-9159_2.7.1" : "99d7ddc4636b47892e0190ca170b6ecec70dec2f"
+    "perwendel__spark_CVE-2018-9159_2.7.1" : "99d7ddc4636b47892e0190ca170b6ecec70dec2f" 
+    # for some reason I cannot find "ce9e11517eca69e58ed4378d1e47a02bd06863cc" locally but it seems to be a legit part of the fix. The parent is this commit.
 }
 
 def is_ancestor(repo_path:Path, ancestor_commit:str, descendant_commit:str)-> bool:
@@ -74,7 +75,7 @@ def find_immediate_predecessor(repo_path:Path, commit:str)-> str:
         stderr=subprocess.PIPE,
         text=True
     )
-    return result.stdout
+    return result.stdout.strip()
 
 def get_commit_dates(repo_path:Path, commits:List[str]) -> str:
     dates = {}
@@ -92,8 +93,11 @@ def get_commit_dates(repo_path:Path, commits:List[str]) -> str:
     
 def main():
     csv_path = Path("data/project_info.csv")
+    csv_path_fixed = Path("data/project_info_fixed.csv")
     projects_base_dir = Path("project-sources")
     # Read the CSV file
+
+    refined_results = []
     with open(csv_path, 'r', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         
@@ -115,6 +119,7 @@ def main():
                 cwd=repo_path,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
+            # fetch tags since some commits are found only there
             subprocess.run(["git", "fetch", "--tags"], 
                 cwd=repo_path,
                 stdout=subprocess.PIPE,
@@ -141,8 +146,14 @@ def main():
 
             if latest_fix_commit != fix_commits[-1]:
                 print(f"Latest fix commit does not appear last in {project_slug}")
-            #if buggy_commit != new_buggy_commit:
-            #    print(f"{project_slug}New buggy commit {new_buggy_commit} is different from previous on {buggy_commit}")
+            refined_results.append((project_slug,new_buggy_commit,latest_fix_commit))
+    with open(csv_path_fixed,"w") as f:
+        field_names = ["project_slug","buggy_commit_id","last_fix_commit_id"]
+        writer = csv.DictWriter(f,fieldnames=field_names)
+        writer.writeheader()
+        for project_slug, buggy_commit_id, last_fix_commit_id in refined_results:
+            writer.writerow({"project_slug":project_slug,"buggy_commit_id":buggy_commit_id,"last_fix_commit_id":last_fix_commit_id})
+
             
 
 if __name__ == "__main__":
