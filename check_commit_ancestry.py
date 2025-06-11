@@ -28,6 +28,8 @@ MANUALLY_EXCLUDED = [
     "88b78d0", # apache__activemq_CVE-2020-11998_5.15.12 same commit as 0d6e5f2 but for a different version
     "aa8900c", # apache__activemq_CVE-2020-11998_5.15.12 same commit as 0d6e5f2 but for a different version
     "c3ada731405c5990c36bf58d50b3e61965300703", # similar to 9d411cf04a695e7a3f41036e8377b0aa544d754d but for a different version
+    '21c358acf0b06f38ec46034404c7a3d0bbbc132d', # wildfly__wildfly_CVE-2018-1047_11.0.0.Final this commit only adds an intergration test, the real fix is only 735c77c
+    '9ff55ed2da845a6f604b2edd1bc3bd311f1b776c', # wildfly__wildfly_CVE-2018-1047_11.0.0.Final this commit only modifies an intergration test, the real fix is only 735c77c
 ]
 
 VULNERABLE_COMMIT = {
@@ -146,13 +148,17 @@ def main():
 
             if latest_fix_commit != fix_commits[-1]:
                 print(f"Latest fix commit does not appear last in {project_slug}")
-            refined_results.append((project_slug,new_buggy_commit,latest_fix_commit))
+            refined_results.append((project_slug,row["github_url"],new_buggy_commit,latest_fix_commit))
     with open(csv_path_fixed,"w") as f:
-        field_names = ["project_slug","buggy_commit_id","last_fix_commit_id"]
+        field_names = ["project_slug","github_url","buggy_commit_id","last_fix_commit_id"]
         writer = csv.DictWriter(f,fieldnames=field_names)
         writer.writeheader()
-        for project_slug, buggy_commit_id, last_fix_commit_id in refined_results:
-            writer.writerow({"project_slug":project_slug,"buggy_commit_id":buggy_commit_id,"last_fix_commit_id":last_fix_commit_id})
+        for project_slug, github_url, buggy_commit_id, last_fix_commit_id in sorted(refined_results):
+            writer.writerow({
+                "project_slug":project_slug,
+                "github_url":github_url,
+                "buggy_commit_id":buggy_commit_id,
+                "last_fix_commit_id":last_fix_commit_id})
 
             
 
