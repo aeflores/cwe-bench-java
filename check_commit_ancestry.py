@@ -148,14 +148,15 @@ def main():
 
             if latest_fix_commit != fix_commits[-1]:
                 print(f"Latest fix commit does not appear last in {project_slug}")
-            refined_results.append((project_slug,row["github_url"],new_buggy_commit,latest_fix_commit))
+            refined_results.append((project_slug,row["cwe_id"],row["github_url"],new_buggy_commit,latest_fix_commit))
     with open(csv_path_fixed,"w") as f:
-        field_names = ["project_slug","github_url","buggy_commit_id","last_fix_commit_id"]
+        field_names = ["project_slug","cwe_id","github_url","buggy_commit_id","last_fix_commit_id"]
         writer = csv.DictWriter(f,fieldnames=field_names)
         writer.writeheader()
-        for project_slug, github_url, buggy_commit_id, last_fix_commit_id in sorted(refined_results):
+        for project_slug, cwe_id, github_url, buggy_commit_id, last_fix_commit_id in sorted(refined_results):
             writer.writerow({
                 "project_slug":project_slug,
+                "cwe_id":cwe_id,
                 "github_url":github_url,
                 "buggy_commit_id":buggy_commit_id,
                 "last_fix_commit_id":last_fix_commit_id})
