@@ -14,7 +14,7 @@ apache__activemq_CVE-2019-0222_5.15.8,CWE-094,https://github.com/apache/activemq
 apache__activemq_CVE-2020-11998_5.15.12,CWE-094,https://github.com/apache/activemq,82f3658ce188090f25152b6ad0d4f99450040693,0d6e5f2
 apache__camel_CVE-2018-8041_2.20.3,CWE-022,https://github.com/apache/camel,845847383df824d0ac06777c99321bfc55076ef8,4580e4d6c65cfd544c1791c824b5819477c583cc
 apache__camel_CVE-2019-0194_2.21.4,CWE-022,https://github.com/apache/camel,2b0be4194ebc878641f7286b5381eb21511ca42f,5b64969d37cf2906efd4623cfd473041ce5132fd
-apache__dolphinscheduler_CVE-2022-26884_2.0.5,CWE-022,https://github.com/apache/dolphinscheduler,adc223465b5b83a9446dfc809ae98cf4bbfaadce,9717da6c255414eaef1c9ac943b0eb8989c1a85d
+apache__dolphinscheduler_CVE-2022-26884_2.0.5,CWE-022,https://github.com/apache/dolphinscheduler,d88656c4cef300e3360689d0d9f70523f74ac0e8,9717da6c255414eaef1c9ac943b0eb8989c1a85d
 apache__dolphinscheduler_CVE-2022-34662_2.0.9,CWE-022,https://github.com/apache/dolphinscheduler,7a4a21d0b1832fe173bfa371af9bf7baeddbb036,63f835715f8ca8bff79c0e7177ebfa5917ebb3bd
 apache__dolphinscheduler_CVE-2023-49109_3.2.0,CWE-094,https://github.com/apache/dolphinscheduler,8665951981b48fad051fe7457af5fddf8e61de87,8c01fcf14b199e2c1ba86c17351e1ea30614f484
 apache__dolphinscheduler_CVE-2023-51770_3.2.0,CWE-094,https://github.com/apache/dolphinscheduler,6c1e001edfc088d371426955d46d74f9bfbf7576,309c8c97a9b9003244496dedc7861a5026f9441a
